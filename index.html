@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Builder — Visual Web Designer</title>
+  <meta name="description" content="Visual drag-and-drop HTML/CSS/JS web UI builder. Create, nest, and style any HTML element then export clean files." />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<!-- ════════════════ TOOLBAR ════════════════ -->
+<div id="toolbar">
+  <div class="logo">
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#6c63ff"/>
+      <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#6c63ff" opacity=".5"/>
+      <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#6c63ff" opacity=".5"/>
+      <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00c8ff"/>
+    </svg>
+    UI Builder
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <button class="btn btn-accent" id="btn-new-page" title="清除畫布，開始新頁面">
+    <span>＋</span> New Page
+  </button>
+
+  <div class="tb-sep"></div>
+
+  <!-- Check Path -->
+  <button class="btn btn-path" id="btn-check-path" title="高亮顯示所選元素的所有父層 (Check Path)">
+    ⬆ Check Path
+  </button>
+
+  <!-- Check Child -->
+  <button class="btn btn-child" id="btn-check-child" title="高亮顯示所選元素的所有子元素 (Check Child)">
+    ⬇ Check Child
+  </button>
+  <span class="tb-label">Max Lv</span>
+  <input id="max-level-input" type="number" value="3" min="1" max="20" title="Check Child 最大層數" />
+
+  <button class="btn" id="btn-clear-highlight" title="清除所有高亮">✕ Clear</button>
+
+  <div class="spacer"></div>
+
+  <!-- Export -->
+  <span class="tb-label">Export →</span>
+  <button class="btn btn-export" id="btn-export-html" title="下載 index.html">⬇ HTML</button>
+  <button class="btn btn-export" id="btn-export-css"  title="下載 docs/css/style.css">⬇ CSS</button>
+  <button class="btn btn-export" id="btn-export-js"   title="下載 docs/js/main.js">⬇ JS</button>
+</div>
+
+<!-- ════════════════ MAIN LAYOUT ════════════════ -->
+<div id="main-layout">
+
+  <!-- ── LEFT PANEL ── -->
+  <div id="left-panel">
+    <div class="panel-tabs">
+      <div class="panel-tab active" data-pane="palette" id="tab-palette">Elements</div>
+      <div class="panel-tab" data-pane="layers"  id="tab-layers">Layers</div>
+    </div>
+
+    <!-- Palette pane -->
+    <div class="panel-pane active" id="pane-palette">
+      <div id="palette-search-wrap">
+        <input id="palette-search" type="search" placeholder="Search elements…" autocomplete="off" />
+      </div>
+      <div id="palette-list"></div>
+    </div>
+
+    <!-- Layers pane -->
+    <div class="panel-pane" id="pane-layers">
+      <div id="layers-container"><p class="layer-empty">No elements yet.<br/>Add from Elements tab.</p></div>
+    </div>
+  </div>
+
+  <!-- ── CANVAS ── -->
+  <div id="canvas-wrapper">
+    <div id="canvas-scroll">
+      <div id="canvas"></div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div id="right-panel">
+    <div id="props-header">
+      <span class="props-title">Properties</span>
+      <span id="props-tag-badge" style="display:none"></span>
+    </div>
+    <div id="props-body">
+      <div id="props-empty">← Select an element<br/>to edit its properties</div>
+      <div id="props-content" style="display:none">
+
+        <!-- Body Properties (shown when body selected) -->
+        <div class="prop-section" id="body-props-section" style="display:none">
+          <div class="prop-section-title">Body Properties</div>
+          <div class="prop-row">
+            <span class="prop-label">Background</span>
+            <div class="prop-color-wrap">
+              <input class="prop-color" type="color" id="body-bg-color" value="#0a0c12" />
+              <input class="prop-input prop-color-text" id="body-bg-text" placeholder="#0a0c12" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Text Color</span>
+            <div class="prop-color-wrap">
+              <input class="prop-color" type="color" id="body-color" value="#e8eaf6" />
+              <input class="prop-input prop-color-text" id="body-color-text" placeholder="#e8eaf6" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Font</span>
+            <select class="prop-select" id="body-font-family">
+              <option value="">inherit</option>
+              <option value="Inter, sans-serif">Inter</option>
+              <option value="'Roboto', sans-serif">Roboto</option>
+              <option value="'Outfit', sans-serif">Outfit</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="monospace">Monospace</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Padding</span>
+            <input class="prop-input" id="body-padding" placeholder="0px" />
+          </div>
+        </div>
+
+        <!-- Identity -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Identity</div>
+          <div class="prop-row">
+            <span class="prop-label">Tag</span>
+            <select class="prop-select" id="prop-tag"></select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">id=</span>
+            <input class="prop-input" id="prop-id" placeholder="element-id" />
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">class=</span>
+            <input class="prop-input" id="prop-class" placeholder="class names…" />
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Parent</span>
+            <select class="prop-select" id="prop-parent"></select>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Content</div>
+          <div class="prop-row">
+            <span class="prop-label">Text</span>
+            <textarea class="prop-textarea" id="prop-text" rows="2"></textarea>
+          </div>
+          <div class="prop-row" id="row-src">
+            <span class="prop-label">src=</span>
+            <input class="prop-input" id="prop-src" placeholder="URL" />
+          </div>
+          <div class="prop-row" id="row-href">
+            <span class="prop-label">href=</span>
+            <input class="prop-input" id="prop-href" placeholder="URL" />
+          </div>
+          <div class="prop-row" id="row-alt">
+            <span class="prop-label">alt=</span>
+            <input class="prop-input" id="prop-alt" placeholder="alt text" />
+          </div>
+          <div class="prop-row" id="row-placeholder">
+            <span class="prop-label">placeholder</span>
+            <input class="prop-input" id="prop-placeholder" placeholder="hint text" />
+          </div>
+          <div class="prop-row" id="row-type">
+            <span class="prop-label">type=</span>
+            <select class="prop-select" id="prop-type">
+              <option value="">—</option>
+              <option>text</option><option>password</option><option>email</option>
+              <option>number</option><option>checkbox</option><option>radio</option>
+              <option>file</option><option>submit</option><option>reset</option>
+              <option>button</option><option>range</option><option>color</option>
+              <option>date</option><option>datetime-local</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Color -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Color</div>
+          <div class="prop-row">
+            <span class="prop-label">Text</span>
+            <div class="prop-color-wrap">
+              <input class="prop-color" type="color" id="prop-color" value="#e8eaf6" />
+              <input class="prop-input prop-color-text" id="prop-color-text" placeholder="#e8eaf6" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Background</span>
+            <div class="prop-color-wrap">
+              <input class="prop-color" type="color" id="prop-bg-color" value="#1a1d27" />
+              <input class="prop-input prop-color-text" id="prop-bg-text" placeholder="transparent" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Border</span>
+            <div class="prop-color-wrap">
+              <input class="prop-color" type="color" id="prop-border-color" value="#363c58" />
+              <input class="prop-input prop-color-text" id="prop-border-text" placeholder="#363c58" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Layout</div>
+          <div class="prop-row">
+            <span class="prop-label">Display</span>
+            <select class="prop-select" id="prop-display">
+              <option value="">—</option>
+              <option>block</option><option>flex</option><option>grid</option>
+              <option>inline</option><option>inline-block</option><option>inline-flex</option><option>none</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Direction</span>
+            <select class="prop-select" id="prop-flex-direction">
+              <option value="">—</option>
+              <option>row</option><option>row-reverse</option><option>column</option><option>column-reverse</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Justify</span>
+            <select class="prop-select" id="prop-justify-content">
+              <option value="">—</option>
+              <option>flex-start</option><option>flex-end</option><option>center</option>
+              <option>space-between</option><option>space-around</option><option>space-evenly</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Align</span>
+            <select class="prop-select" id="prop-align-items">
+              <option value="">—</option>
+              <option>flex-start</option><option>flex-end</option><option>center</option>
+              <option>stretch</option><option>baseline</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Wrap</span>
+            <select class="prop-select" id="prop-flex-wrap">
+              <option value="">—</option>
+              <option>nowrap</option><option>wrap</option><option>wrap-reverse</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Gap</span>
+            <input class="prop-input" id="prop-gap" placeholder="8px" />
+          </div>
+        </div>
+
+        <!-- Size & Position -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Size &amp; Position</div>
+          <div class="prop-row-2">
+            <div>
+              <div class="prop-label">Width</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-width" placeholder="120" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+            <div>
+              <div class="prop-label">Height</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-height" placeholder="40" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+          </div>
+          <div class="prop-row-2" id="row-position">
+            <div>
+              <div class="prop-label">X (left)</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-left" placeholder="0" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+            <div>
+              <div class="prop-label">Y (top)</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-top" placeholder="0" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Typography</div>
+          <div class="prop-row">
+            <span class="prop-label">Font</span>
+            <select class="prop-select" id="prop-font-family">
+              <option value="">inherit</option>
+              <option value="Inter, sans-serif">Inter</option>
+              <option value="'Roboto', sans-serif">Roboto</option>
+              <option value="'Outfit', sans-serif">Outfit</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+              <option value="monospace">Monospace</option>
+            </select>
+          </div>
+          <div class="prop-row-2">
+            <div>
+              <div class="prop-label">Size</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-font-size" placeholder="14" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+            <div>
+              <div class="prop-label">Weight</div>
+              <select class="prop-select" id="prop-font-weight">
+                <option value="">normal</option>
+                <option value="300">Light</option>
+                <option value="400">Regular</option>
+                <option value="500">Medium</option>
+                <option value="600">SemiBold</option>
+                <option value="700">Bold</option>
+                <option value="900">Black</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Border & Spacing -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Border &amp; Spacing</div>
+          <div class="prop-row-2">
+            <div>
+              <div class="prop-label">Border W</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-border-width" placeholder="0" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+            <div>
+              <div class="prop-label">Radius</div>
+              <div class="prop-unit-wrap">
+                <input class="prop-input" id="prop-border-radius" placeholder="0" />
+                <span class="prop-unit">px</span>
+              </div>
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Padding</span>
+            <input class="prop-input" id="prop-padding" placeholder="8px" />
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Margin</span>
+            <input class="prop-input" id="prop-margin" placeholder="0px" />
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">B.Style</span>
+            <select class="prop-select" id="prop-border-style">
+              <option value="">none</option>
+              <option>solid</option><option>dashed</option><option>dotted</option>
+              <option>double</option><option>groove</option><option>ridge</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Advanced -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Advanced</div>
+          <div class="prop-row">
+            <span class="prop-label">Position</span>
+            <select class="prop-select" id="prop-position">
+              <option value="">—</option>
+              <option>static</option><option>relative</option><option>absolute</option><option>fixed</option><option>sticky</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Overflow</span>
+            <select class="prop-select" id="prop-overflow">
+              <option value="">—</option>
+              <option>visible</option><option>hidden</option><option>scroll</option><option>auto</option>
+            </select>
+          </div>
+          <div class="prop-row-2">
+            <div>
+              <div class="prop-label">Opacity</div>
+              <input class="prop-input" id="prop-opacity" placeholder="1" />
+            </div>
+            <div>
+              <div class="prop-label">Z-Index</div>
+              <input class="prop-input" id="prop-zindex" placeholder="auto" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">Cursor</span>
+            <select class="prop-select" id="prop-cursor">
+              <option value="">—</option>
+              <option>pointer</option><option>default</option><option>text</option>
+              <option>move</option><option>grab</option><option>not-allowed</option><option>crosshair</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Attributes -->
+        <div class="prop-section el-only">
+          <div class="prop-section-title">Custom Attributes</div>
+          <div id="custom-attrs-list"></div>
+          <button class="btn" id="btn-add-attr" style="width:100%;margin-top:4px;font-size:11px">＋ Add Attribute</button>
+        </div>
+
+        <!-- Delete -->
+        <div class="prop-section el-only">
+          <button class="btn" id="btn-delete-el" style="width:100%;color:var(--red);border-color:var(--red);">
+            🗑 Delete Element
+          </button>
+        </div>
+
+      </div><!-- /props-content -->
+    </div><!-- /props-body -->
+
+    <div id="export-hint">
+      Export saves to <code>index.html</code>, <code>docs/css/style.css</code>, <code>docs/js/main.js</code>
+    </div>
+  </div><!-- /right-panel -->
+
+</div><!-- /main-layout -->
+
+<!-- Drag ghost -->
+<div id="drag-ghost"></div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Modal -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-body" style="font-size:12px;color:var(--text-sec)"></p>
+    <div class="modal-btns">
+      <button class="btn" id="modal-cancel">Cancel</button>
+      <button class="btn btn-accent" id="modal-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/palette-data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/panels.js"></script>
+<script src="js/export.js"></script>
+</body>
+</html>
