@@ -164,7 +164,7 @@ function modalConfirm(title, body) {
 }
 
 /* ── Default text color for dark background ── */
-const DEFAULT_TEXT_COLOR = '#e8eaf6';
+const DEFAULT_TEXT_COLOR = '#eef0fa';
 
 /* ── Create a new element descriptor from palette item ── */
 function createElDescriptor(item, x, y, parentUid) {
