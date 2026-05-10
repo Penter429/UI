@@ -2,6 +2,100 @@
    canvas.js — Canvas rendering, drag/drop from palette, move, select, resize
    ============================================================ */
 
+/* ── Child element reorder by dragging handle ── */
+function startChildReorder(desc, wrapEl, startEvent) {
+  const parentContent = wrapEl.parentElement; // parent's .canvas-rendered-el
+  const siblingWraps = Array.from(parentContent.querySelectorAll(':scope > .el-wrapper'));
+  if (siblingWraps.length <= 1) return;
+
+  const startY = startEvent.clientY;
+  const startX = startEvent.clientX;
+  let moved = false;
+
+  // Visual feedback
+  wrapEl.style.opacity = '0.5';
+  wrapEl.style.zIndex = '100';
+  wrapEl.style.pointerEvents = 'none';
+
+  // Create insertion indicator
+  const indicator = document.createElement('div');
+  indicator.className = 'child-reorder-indicator';
+  indicator.style.display = 'none';
+  parentContent.appendChild(indicator);
+
+  function onMove(ev) {
+    moved = true;
+    const dy = ev.clientY - startY;
+    wrapEl.style.transform = 'translateY(' + dy + 'px)';
+
+    // Find insertion point among siblings
+    indicator.style.display = 'none';
+    let placed = false;
+    for (const sib of siblingWraps) {
+      if (sib.dataset.uid === desc.uid) continue;
+      const rect = sib.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (ev.clientY < midY) {
+        sib.insertAdjacentElement('beforebegin', indicator);
+        indicator.style.display = '';
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      parentContent.appendChild(indicator);
+      indicator.style.display = '';
+    }
+  }
+
+  function onUp(ev) {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+
+    wrapEl.style.opacity = '';
+    wrapEl.style.transform = '';
+    wrapEl.style.zIndex = '';
+    wrapEl.style.pointerEvents = '';
+    indicator.remove();
+
+    if (!moved) return;
+
+    // Determine new position
+    let insertBeforeUid = null;
+    for (const sib of siblingWraps) {
+      if (sib.dataset.uid === desc.uid) continue;
+      const rect = sib.getBoundingClientRect();
+      if (ev.clientY < rect.top + rect.height / 2) {
+        insertBeforeUid = sib.dataset.uid;
+        break;
+      }
+    }
+
+    // Remove from current position
+    const idx = App.elements.findIndex(e => e.uid === desc.uid);
+    App.elements.splice(idx, 1);
+
+    // Insert at new position
+    if (insertBeforeUid) {
+      const targetIdx = App.elements.findIndex(e => e.uid === insertBeforeUid);
+      App.elements.splice(targetIdx, 0, desc);
+    } else {
+      // Place after last sibling with same parent
+      let lastIdx = -1;
+      App.elements.forEach((e, i) => { if (e.parentUid === desc.parentUid) lastIdx = i; });
+      App.elements.splice(lastIdx + 1, 0, desc);
+    }
+
+    pushHistory(); saveToStorage();
+    refreshCanvas(); refreshLayers();
+    selectElement(desc.uid);
+    toast('Reordered', 'success');
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
 /* ── Apply body styles to canvas ── */
 function applyBodyStyles() {
   const canvas = document.getElementById('canvas');
@@ -62,9 +156,14 @@ function renderElToCanvas(desc, parentDom) {
     selectElement(desc.uid);
   });
 
-  // Move (only root-level elements)
+  // Move (root: absolute positioning, child: reorder among siblings)
   handle.addEventListener('mousedown', e => {
-    if (desc.parentUid) return;
+    if (desc.parentUid) {
+      e.preventDefault(); e.stopPropagation();
+      selectElement(desc.uid);
+      startChildReorder(desc, wrap, e);
+      return;
+    }
     e.preventDefault(); e.stopPropagation();
     selectElement(desc.uid);
     const startX = e.clientX, startY = e.clientY;
@@ -257,8 +356,10 @@ function reapplyHighlights() {
 }
 
 /* ── Canvas click (deselect or select body) ── */
-document.getElementById('canvas').addEventListener('mousedown', e => {
-  if (e.target.id === 'canvas') {
+document.getElementById('canvas-wrapper').addEventListener('mousedown', e => {
+  // Select body when clicking on empty canvas area (not on any element)
+  const target = e.target;
+  if (target.id === 'canvas' || target.id === 'canvas-scroll' || target.id === 'canvas-wrapper') {
     selectElement('__body__');
   }
 });

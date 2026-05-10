@@ -633,3 +633,25 @@ body {
   flex-shrink: 0;
   padding: 2px 4px;
 }
+
+/* ══════════════════ CHILD REORDER INDICATOR ══════════════════ */
+.child-reorder-indicator {
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin: 2px 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: reorderPulse .8s ease infinite alternate;
+}
+@keyframes reorderPulse {
+  from { opacity: .7; }
+  to   { opacity: 1; box-shadow: 0 0 14px var(--accent-glow); }
+}
+
+/* Dragging child element visual */
+.el-wrapper.is-child > .el-handle {
+  cursor: grab;
+}
+.el-wrapper.is-child > .el-handle:active {
+  cursor: grabbing;
+}

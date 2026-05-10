@@ -512,10 +512,14 @@ function bindProps() {
 /* ═══════════════ TOOLBAR BUTTONS ═══════════════ */
 function bindToolbar() {
   document.getElementById('btn-new-page').addEventListener('click', async () => {
-    if (App.elements.length === 0 || await modalConfirm('New Page', 'Clear all elements and start fresh?')) {
+    const msg = App.elements.length === 0
+      ? 'Canvas is empty. Reset page settings and start fresh?'
+      : 'Clear all ' + App.elements.length + ' element(s) and start fresh?';
+    if (await modalConfirm('New Page', msg)) {
       App.elements = [];
       App.selected = null;
       App.nextId = 1;
+      App.body = { bg: '#0a0c12', color: '#e8eaf6', fontFamily: '', fontSize: '', padding: '', margin: '', overflow: '', customAttrs: {} };
       pushHistory(); saveToStorage();
       refreshCanvas(); refreshLayers(); refreshProps();
       toast('Canvas cleared');
