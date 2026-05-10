@@ -553,6 +553,7 @@ function bindToolbar() {
   document.getElementById('btn-export-html').addEventListener('click', () => exportHTML());
   document.getElementById('btn-export-css').addEventListener('click', () => exportCSS());
   document.getElementById('btn-export-js').addEventListener('click', () => exportJS());
+  document.getElementById('btn-export-zip').addEventListener('click', () => exportZIP());
 }
 
 /* ═══════════════ KEYBOARD SHORTCUTS ═══════════════ */
