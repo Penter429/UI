@@ -364,6 +364,12 @@ body {
 .el-wrapper.selected > .el-handle { opacity: 1; }
 .el-handle:active { cursor: grabbing; }
 
+/* Selected element handle turns yellow for clear distinction */
+.el-wrapper.selected > .el-handle {
+  background: #f0c030;
+  color: #1a1d27;
+}
+
 .el-content {
   width: 100%;
   height: 100%;
@@ -372,7 +378,7 @@ body {
 }
 
 .el-wrapper.selected > .el-content {
-  outline: 2px solid var(--sel-color);
+  outline: 2px solid #f0c030;
   outline-offset: 1px;
 }
 .el-wrapper.path-highlight > .el-content {
@@ -386,21 +392,38 @@ body {
   box-shadow: 0 0 0 4px rgba(0,200,255,.08), inset 0 0 0 9999px rgba(0,200,255,.04);
 }
 
-/* Resize handle */
+/* Resize handle — visible on hover, yellow on selection */
 .el-resize {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   cursor: se-resize;
   background: var(--accent);
-  border-radius: 2px 0 0 0;
+  border-radius: 3px 0 0 0;
   opacity: 0;
   transition: opacity .15s;
-  z-index: 10;
+  z-index: 50;
 }
-.el-wrapper.selected .el-resize { opacity: 1; }
+/* Grip dots pattern */
+.el-resize::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  background-image:
+    radial-gradient(circle, #fff 1px, transparent 1px);
+  background-size: 4px 4px;
+  opacity: .7;
+}
+.el-wrapper:hover > .el-resize { opacity: .6; }
+.el-wrapper.selected .el-resize { opacity: 1; background: #f0c030; }
+.el-wrapper.selected .el-resize::after {
+  background-image: radial-gradient(circle, #1a1d27 1px, transparent 1px);
+}
 
 /* Drop-over indicator when dragging from palette */
 .el-wrapper.drop-target > .el-content {
@@ -654,4 +677,53 @@ body {
 }
 .el-wrapper.is-child > .el-handle:active {
   cursor: grabbing;
+}
+
+/* ══════════════════ TABLE ELEMENTS ON CANVAS ══════════════════ */
+
+/* Show handle on hover for table elements (same as normal elements) */
+.el-wrapper[data-table-el] {
+  min-height: 24px;
+  overflow: visible;
+}
+/* Table content areas: visible overflow so child handles aren't clipped */
+.el-wrapper[data-table-el] > .el-content {
+  overflow: visible;
+  padding-top: 22px;
+}
+
+/* Color-coded left borders for visual hierarchy */
+.el-wrapper[data-table-el="table"] > .el-content {
+  border-left: 3px solid #6c63ff;
+}
+.el-wrapper[data-table-el="thead"] > .el-content,
+.el-wrapper[data-table-el="tbody"] > .el-content,
+.el-wrapper[data-table-el="tfoot"] > .el-content {
+  border-left: 3px solid #ff9f43;
+}
+.el-wrapper[data-table-el="tr"] > .el-content {
+  border-left: 3px solid #00c8ff;
+}
+.el-wrapper[data-table-el="th"] > .el-content,
+.el-wrapper[data-table-el="td"] > .el-content {
+  border-left: 3px solid #3ddc84;
+}
+
+/* Table rendered inner element */
+.canvas-table-el {
+  box-sizing: border-box;
+  min-height: 24px;
+}
+
+/* ── 2D Table Grid Layout ── */
+/* Cell wrappers (<th>/<td>) inside a <tr> row: match tr height, keep own width */
+[data-table-tag="tr"] > .el-wrapper.is-child {
+  height: 100% !important;
+}
+/* Row wrappers (<tr>) inside table/thead/tbody: stretch full width */
+[data-table-tag="table"] > .el-wrapper.is-child,
+[data-table-tag="thead"] > .el-wrapper.is-child,
+[data-table-tag="tbody"] > .el-wrapper.is-child,
+[data-table-tag="tfoot"] > .el-wrapper.is-child {
+  width: 100% !important;
 }
