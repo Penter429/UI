@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UI Builder — Visual Web Designer</title>
   <meta name="description" content="Visual drag-and-drop HTML/CSS/JS web UI builder. Create, nest, and style any HTML element then export clean files." />
-  <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
 
@@ -296,6 +296,35 @@
           </div>
         </div>
 
+        <!-- Location Tool / Precise Positioning -->
+        <div class="prop-section el-only location-tool-section" id="location-tool-section" style="display:none">
+          <div class="prop-section-title">📍 Placement</div>
+          
+          <div style="font-size:10px;color:var(--text-sec);margin-bottom:6px">Anchor Mode:</div>
+          <div class="location-anchor-selector" id="anchor-selector">
+            <!-- Filled by JS -->
+          </div>
+          
+          <div class="location-expr-row">
+            <label>X:</label>
+            <input type="text" id="location-x-input" placeholder="cw/2" />
+          </div>
+          <div class="location-expr-row">
+            <label>Y:</label>
+            <input type="text" id="location-y-input" placeholder="(ch-eh)/2" />
+          </div>
+          <div class="location-expr-hint">
+            cw=canvas width, ch=canvas height, ew=element width, eh=element height
+          </div>
+          
+          <button class="btn location-btn-apply" id="location-apply-btn">↩ Apply Position</button>
+          
+          <div style="display:flex;gap:4px;margin-top:6px;font-size:10px">
+            <button class="btn" id="location-center-btn" style="flex:1">Center</button>
+            <button class="btn" id="location-corner-btn" style="flex:1">Corner</button>
+          </div>
+        </div>
+
         <!-- Typography -->
         <div class="prop-section el-only">
           <div class="prop-section-title">Typography</div>
@@ -453,7 +482,11 @@
 <script src="js/palette-data.js"></script>
 <script src="js/state.js"></script>
 <script src="js/canvas.js"></script>
+<script src="js/antigravity.js"></script>
+<script src="js/location-tool.js"></script>
+<script src="js/browser-preview.js"></script>
 <script src="js/panels.js"></script>
+<script src="js/ui-integration.js"></script>
 <script src="js/export.js"></script>
 </body>
 </html>

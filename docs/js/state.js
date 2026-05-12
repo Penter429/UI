@@ -18,6 +18,13 @@ window.App = {
     overflow: '',
     customAttrs: {},  // key-value pairs
   },
+  // head settings (title, favicon, meta, etc.)
+  headSettings: {
+    title: 'Page Title',
+    favicon: '',
+    description: '',
+    customHtml: '',
+  },
   // undo / redo
   history: [],
   historyIndex: -1,
@@ -100,6 +107,7 @@ function pushHistory() {
     elements: JSON.parse(JSON.stringify(App.elements)),
     nextId: App.nextId,
     body: JSON.parse(JSON.stringify(App.body)),
+    headSettings: JSON.parse(JSON.stringify(App.headSettings)),
   };
   App.history.push(snapshot);
   if (App.history.length > App.maxHistory) App.history.shift();
@@ -124,6 +132,7 @@ function restoreSnapshot(snap) {
   App.elements = JSON.parse(JSON.stringify(snap.elements));
   App.nextId = snap.nextId;
   App.body = JSON.parse(JSON.stringify(snap.body));
+  if (snap.headSettings) App.headSettings = JSON.parse(JSON.stringify(snap.headSettings));
   // make sure selection is still valid
   if (App.selected && App.selected !== '__body__' && !findEl(App.selected)) {
     App.selected = null;
@@ -235,6 +244,7 @@ function saveToStorage() {
       elements: App.elements,
       nextId: App.nextId,
       body: App.body,
+      headSettings: App.headSettings,
     };
     localStorage.setItem('ui-builder-state', JSON.stringify(data));
   } catch (e) { /* quota exceeded — ignore */ }
@@ -248,6 +258,7 @@ function loadFromStorage() {
     if (data.elements) App.elements = data.elements;
     if (data.nextId) App.nextId = data.nextId;
     if (data.body) App.body = { ...App.body, ...data.body };
+    if (data.headSettings) App.headSettings = { ...App.headSettings, ...data.headSettings };
     return true;
   } catch (e) {
     console.error('Failed to load state:', e);
