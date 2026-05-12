@@ -67,7 +67,7 @@ Reason: Flexbox layout manages child positioning
 
 ### Features
 
-The Browser Preview appears at the top of the canvas, mimicking real browser chrome:
+The Browser Preview appears as an embedded browser frame above the canvas, with a browser-style top bar and a preview area below it:
 
 ```
 [ 🔷 ] Page Title                                    [ ⚙ ]

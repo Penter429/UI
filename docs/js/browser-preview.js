@@ -7,45 +7,14 @@
  * Displays: favicon, page title, browser-like appearance
  */
 function initBrowserPreview() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  if (!wrapper) return;
-  
-  // Create preview container
-  const preview = document.createElement('div');
-  preview.id = 'browser-preview';
-  preview.className = 'browser-preview';
-  
-  // Create fake tab bar
-  const tabBar = document.createElement('div');
-  tabBar.className = 'browser-tab-bar';
-  
-  // Favicon
-  const favicon = document.createElement('img');
-  favicon.className = 'browser-favicon';
-  favicon.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iNyIgaGVpZ2h0PSI3IiBmaWxsPSIjNmM2M2ZmIi8+PHJlY3QgeD0iMTEiIHk9IjIiIHdpZHRoPSI3IiBoZWlnaHQ9IjciIGZpbGw9IiM2YzYzZmYiIG9wYWNpdHk9Ii41Ii8+PHJlY3QgeD0iMiIgeT0iMTEiIHdpZHRoPSI3IiBoZWlnaHQ9IjciIGZpbGw9IiM2YzYzZmYiIG9wYWNpdHk9Ii41Ii8+PHJlY3QgeD0iMTEiIHk9IjExIiB3aWR0aD0iNyIgaGVpZ2h0PSI3IiBmaWxsPSIjMDBjOGZmIi8+PC9zdmc+';
-  favicon.alt = 'Favicon';
-  favicon.title = 'Auto-generated favicon';
-  tabBar.appendChild(favicon);
-  
-  // Title span
-  const titleSpan = document.createElement('span');
-  titleSpan.id = 'browser-title';
-  titleSpan.className = 'browser-title';
-  titleSpan.textContent = 'Page Title';
-  tabBar.appendChild(titleSpan);
-  
-  // Settings button
-  const settingsBtn = document.createElement('button');
-  settingsBtn.className = 'browser-settings-btn';
-  settingsBtn.title = 'Edit page title & favicon';
-  settingsBtn.textContent = '⚙';
-  settingsBtn.addEventListener('click', showHeadSettings);
-  tabBar.appendChild(settingsBtn);
-  
-  preview.appendChild(tabBar);
-  wrapper.insertBefore(preview, wrapper.firstChild);
-  
-  // Update on init
+  const preview = document.getElementById('browser-preview');
+  if (!preview) return;
+
+  const settingsBtn = preview.querySelector('.browser-settings-btn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', showHeadSettings);
+  }
+
   updateBrowserPreview();
 }
 

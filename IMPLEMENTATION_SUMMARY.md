@@ -20,7 +20,7 @@ Your UI Builder has been successfully enhanced with three powerful features for 
 
 ### 2. **Browser Preview Window**
 **Problem:** No visual representation of page title/favicon while designing.  
-**Solution:** Fake browser tab above canvas showing title and favicon live.
+**Solution:** Static embedded browser frame above the canvas showing title and favicon live.
 
 **Features:**
 - Shows current page title

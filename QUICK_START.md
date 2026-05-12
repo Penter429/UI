@@ -5,7 +5,7 @@
 Your UI Builder has been upgraded with **3 professional features**:
 
 1. **Free-Move Layout Detection** — Warns when elements can't move freely + offers solutions
-2. **Browser Preview Tab** — Shows page title and favicon live above the canvas
+2. **Browser Preview Frame** — Shows a browser-style title bar and favicon embedded above the canvas
 3. **Precision Placement Tool** — Position elements using math expressions (e.g., `cw/2`, `(ch-eh)/2`)
 
 All files organized, styles added, state management updated.
